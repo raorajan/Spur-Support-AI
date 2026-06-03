@@ -4,11 +4,13 @@ import {
   createConversation,
   deleteConversation,
 } from "../controllers/conversation.controller";
+import { validate } from "../middleware/validate.middleware";
+import { createConversationSchema, deleteConversationSchema } from "../validators/conversation.validator";
 
 const router = Router();
 
 router.get("/", getConversations);
-router.post("/", createConversation);
-router.delete("/:id", deleteConversation);
+router.post("/", validate(createConversationSchema), createConversation);
+router.delete("/:id", validate(deleteConversationSchema), deleteConversation);
 
 export default router;

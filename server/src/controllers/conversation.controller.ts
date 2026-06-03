@@ -1,55 +1,20 @@
 import { Request, Response } from "express";
-import { db } from "../config/database";
-import { conversations } from "../models";
-import { desc, eq } from "drizzle-orm";
+import { ConversationService } from "../services/conversation.service";
+import { catchAsync } from "../utils/catchAsync";
 
-export const getConversations = async (req: Request, res: Response) => {
-  try {
-    const result = await db
-      .select()
-      .from(conversations)
-      .orderBy(desc(conversations.updatedAt));
+export const getConversations = catchAsync(async (req: Request, res: Response) => {
+  const result = await ConversationService.getAll();
+  res.json(result);
+});
 
-    res.json(result);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Failed to fetch conversations" });
-  }
-};
+export const createConversation = catchAsync(async (req: Request, res: Response) => {
+  const { title } = req.body;
+  const created = await ConversationService.create(title);
+  res.status(201).json(created);
+});
 
-export const createConversation = async (req: Request, res: Response) => {
-  try {
-    const { title } = req.body;
-
-    const [created] = await db
-      .insert(conversations)
-      .values({ title: title || "New Conversation" })
-      .returning();
-
-    res.status(201).json(created);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Failed to create conversation" });
-  }
-};
-
-export const deleteConversation = async (req: Request, res: Response) => {
-  try {
-    const id = req.params.id as string;
-
-    const [deleted] = await db
-      .delete(conversations)
-      .where(eq(conversations.id, id))
-      .returning();
-
-    if (!deleted) {
-      res.status(404).json({ error: "Conversation not found" });
-      return;
-    }
-
-    res.json({ message: "Conversation deleted" });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Failed to delete conversation" });
-  }
-};
+export const deleteConversation = catchAsync(async (req: Request, res: Response) => {
+  const id = req.params.id as string;
+  await ConversationService.delete(id);
+  res.json({ message: "Conversation deleted" });
+});
