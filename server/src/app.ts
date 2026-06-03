@@ -21,6 +21,10 @@ app.use("/api/v1/conversations", conversationRoutes);
 app.use("/api/v1/messages", messageRoutes);
 app.use("/chat", chatRoutes);
 
+app.get("/", (req, res) => {
+  res.json({ status: "ok", message: "Welcome to Spur Support AI Backend" });
+});
+
 app.get("/health", (req, res) => {
   res.json({ status: "ok" });
 });
