@@ -1,7 +1,5 @@
+import { ChatContainer } from "@/containers/ChatContainer";
+
 export default function Home() {
-  return (
-    <div>
-      Spur Support AI
-    </div>
-  );
+  return <ChatContainer />;
 }
