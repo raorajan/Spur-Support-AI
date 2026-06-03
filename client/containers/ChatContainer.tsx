@@ -5,10 +5,12 @@ import { ConversationList } from "@/components/conversation/ConversationList";
 import { NewChatButton } from "@/components/conversation/NewChatButton";
 import { ChatWindow } from "@/components/chat/ChatWindow";
 import { useConversationStore } from "@/store/conversation.store";
+import { useChatStore } from "@/store/chat.store";
 import { cn } from "@/lib/utils";
 
 export const ChatContainer = () => {
-  const { fetchConversations, isSidebarOpen, setSidebarOpen } = useConversationStore();
+  const { fetchConversations, isSidebarOpen, setSidebarOpen, activeConversationId } = useConversationStore();
+  const { fetchMessages } = useChatStore();
 
   useEffect(() => {
     let prevWidth = window.innerWidth;
@@ -32,7 +34,11 @@ export const ChatContainer = () => {
 
   useEffect(() => {
     fetchConversations();
-  }, [fetchConversations]);
+    // Also fetch messages for the persisted active conversation if it exists
+    if (activeConversationId) {
+      fetchMessages(activeConversationId);
+    }
+  }, [fetchConversations, fetchMessages, activeConversationId]);
 
   return (
     <div className="flex h-screen w-full bg-[#0F172A] overflow-hidden text-[#F8FAFC]">

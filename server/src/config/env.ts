@@ -7,6 +7,7 @@ const envSchema = z.object({
   PORT: z.string().default('8000'),
   DATABASE_URL: z.string().url(),
   OPENAI_API_KEY: z.string().min(1),
+  REDIS_URL: z.string().min(1),
 });
 
 const _env = envSchema.safeParse(process.env);

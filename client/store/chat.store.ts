@@ -44,7 +44,22 @@ export const useChatStore = create<ChatState>((set, get) => ({
       
     } catch (error) {
       console.error("Failed to send message", error);
-      // In a real app, we'd handle the error state here and remove the optimistic message
+      // Remove optimistic message and show a friendly error
+      set((state) => {
+        const filtered = state.messages.filter(m => !m.id.startsWith("temp-"));
+        return { 
+          messages: [
+            ...filtered,
+            {
+              id: `error-${Date.now()}`,
+              conversationId,
+              content: "I'm sorry, I'm having trouble connecting right now. Please try again later.",
+              sender: 'ai',
+              createdAt: new Date().toISOString()
+            }
+          ]
+        };
+      });
     } finally {
       set({ isLoading: false });
     }
