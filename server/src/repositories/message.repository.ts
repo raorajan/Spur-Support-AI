@@ -29,7 +29,6 @@ export class MessageRepository {
       })
       .returning();
 
-    // Invalidate cache so next fetch gets fresh data
     await CacheService.invalidate(`messages:${conversationId}`);
     return created;
   }

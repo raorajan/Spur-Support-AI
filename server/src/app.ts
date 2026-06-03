@@ -14,7 +14,7 @@ app.use(express.json());
 
 app.use("/api/v1/conversations", conversationRoutes);
 app.use("/api/v1/messages", messageRoutes);
-app.use("/chat", chatRoutes); // Assignment requirement
+app.use("/chat", chatRoutes);
 
 app.get("/health", (req, res) => {
   res.json({ status: "ok" });

@@ -1,6 +1,6 @@
 import { redisClient } from "../config/redis";
 
-const DEFAULT_TTL = 300; // 5 minutes
+const DEFAULT_TTL = 300;
 
 export class CacheService {
   static async get<T>(key: string): Promise<T | null> {
@@ -18,7 +18,7 @@ export class CacheService {
       if (!redisClient.isOpen) return;
       await redisClient.set(key, JSON.stringify(data), { EX: ttl });
     } catch {
-      // Redis write failure is non-critical, we just skip caching
+      return;
     }
   }
 
@@ -27,7 +27,7 @@ export class CacheService {
       if (!redisClient.isOpen) return;
       await redisClient.del(key);
     } catch {
-      // Non-critical
+      return;
     }
   }
 
@@ -39,7 +39,7 @@ export class CacheService {
         await redisClient.del(keys);
       }
     } catch {
-      // Non-critical
+      return;
     }
   }
 }
