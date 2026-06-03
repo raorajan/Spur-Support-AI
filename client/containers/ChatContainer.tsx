@@ -10,7 +10,6 @@ import { cn } from "@/lib/utils";
 
 export const ChatContainer = () => {
   const { fetchConversations, isSidebarOpen, setSidebarOpen, activeConversationId } = useConversationStore();
-  const { fetchMessages } = useChatStore();
 
   useEffect(() => {
     let prevWidth = window.innerWidth;
@@ -32,13 +31,20 @@ export const ChatContainer = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, [setSidebarOpen]);
 
+  const { fetchMessages, isLoading } = useChatStore();
+
   useEffect(() => {
     fetchConversations();
-    // Also fetch messages for the persisted active conversation if it exists
-    if (activeConversationId) {
+  }, [fetchConversations]);
+
+  useEffect(() => {
+    // Only fetch messages if we aren't currently sending a new message.
+    // This prevents the chat from wiping out your typed message and
+    // showing a loading spinner when you just started a new conversation.
+    if (activeConversationId && !isLoading) {
       fetchMessages(activeConversationId);
     }
-  }, [fetchConversations, fetchMessages, activeConversationId]);
+  }, [activeConversationId]);
 
   return (
     <div className="flex h-screen w-full bg-[#0F172A] overflow-hidden text-[#F8FAFC]">

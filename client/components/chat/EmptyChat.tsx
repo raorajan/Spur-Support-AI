@@ -1,4 +1,8 @@
+import { useChatStore } from "@/store/chat.store";
+
 export const EmptyChat = () => {
+  const { setInput } = useChatStore();
+
   return (
     <div className="flex-1 flex flex-col items-center justify-center p-6 text-center">
       <h2 className="text-[32px] font-bold text-[#F8FAFC] mb-4">👋 Welcome to Spur Support AI</h2>
@@ -12,6 +16,14 @@ export const EmptyChat = () => {
         ].map((q) => (
           <div 
             key={q} 
+            onClick={() => {
+              setInput(q);
+              // Small delay to let React render, then focus and trigger height adjustment if needed
+              setTimeout(() => {
+                const textarea = document.querySelector('textarea');
+                if (textarea) textarea.focus();
+              }, 50);
+            }}
             className="p-4 rounded-xl border border-[#334155] bg-[#1E293B] 
                        text-[#F8FAFC] hover:bg-[#334155] transition-colors 
                        cursor-pointer"

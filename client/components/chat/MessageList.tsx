@@ -7,7 +7,7 @@ import { TypingIndicator } from "./TypingIndicator";
 import { scrollToBottom } from "@/utils/scroll";
 
 export const MessageList = () => {
-  const { messages, isLoading } = useChatStore();
+  const { messages, isLoading, isFetchingMessages } = useChatStore();
   const { activeConversationId } = useConversationStore();
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -18,7 +18,21 @@ export const MessageList = () => {
   }, [currentMessages, isLoading]);
 
   if (currentMessages.length === 0) {
-    return <EmptyChat />;
+    if (!activeConversationId) {
+      return <EmptyChat />;
+    }
+
+    if (isFetchingMessages) {
+      return (
+        <div className="flex-1 h-full flex items-center justify-center">
+          <div className="flex flex-col items-center gap-3">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#6366F1]"></div>
+            <p className="text-sm text-[#94A3B8]">Loading messages...</p>
+          </div>
+        </div>
+      );
+    }
+    // If neither, it falls through to render the chat window with the typing indicator.
   }
 
   return (

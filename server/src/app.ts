@@ -13,8 +13,9 @@ app.use(cors());
 app.use(helmet());
 app.use(express.json());
 
-app.use("/api/", apiRateLimiter);
+// Apply rate limiting specifically to the LLM interaction routes
 app.use("/chat", apiRateLimiter);
+app.use("/api/v1/messages", apiRateLimiter);
 
 app.use("/api/v1/conversations", conversationRoutes);
 app.use("/api/v1/messages", messageRoutes);

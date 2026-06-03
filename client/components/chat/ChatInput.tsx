@@ -5,8 +5,7 @@ import { useChatStore } from "@/store/chat.store";
 import { useConversationStore } from "@/store/conversation.store";
 
 export const ChatInput = () => {
-  const [input, setInput] = useState("");
-  const { sendMessage, addOptimisticMessage, isLoading } = useChatStore();
+  const { sendMessage, addOptimisticMessage, isLoading, input, setInput, beginSending } = useChatStore();
   const { activeConversationId, setActiveConversationId, createNewConversation } = useConversationStore();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -22,6 +21,9 @@ export const ChatInput = () => {
   const handleSend = async () => {
     const val = input.trim();
     if (!val || isLoading) return;
+
+    // Immediately set loading so EmptyChat never flashes during conversation creation
+    beginSending();
     
     let convId = activeConversationId;
     

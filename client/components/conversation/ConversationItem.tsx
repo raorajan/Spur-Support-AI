@@ -32,10 +32,13 @@ export const ConversationItem = ({ conversation }: ConversationItemProps) => {
   }, []);
 
   const handleSelect = () => {
-    setActiveConversationId(conversation.id);
     if (window.innerWidth < 768) {
       setSidebarOpen(false);
     }
+    
+    if (isActive) return;
+
+    setActiveConversationId(conversation.id);
     clearMessages();
     fetchMessages(conversation.id);
   };

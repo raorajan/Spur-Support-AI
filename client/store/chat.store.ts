@@ -5,7 +5,11 @@ import { ApiMessage } from '../types/api.types';
 interface ChatState {
   messages: ApiMessage[];
   isLoading: boolean;
+  isFetchingMessages: boolean;
+  input: string;
   
+  setInput: (val: string) => void;
+  beginSending: () => void;
   fetchMessages: (conversationId: string) => Promise<void>;
   sendMessage: (conversationId: string, content: string) => Promise<void>;
   
@@ -16,16 +20,21 @@ interface ChatState {
 export const useChatStore = create<ChatState>((set, get) => ({
   messages: [],
   isLoading: false,
+  isFetchingMessages: false,
+  input: "",
+
+  setInput: (val: string) => set({ input: val }),
+  beginSending: () => set({ isLoading: true }),
 
   fetchMessages: async (conversationId: string) => {
-    set({ isLoading: true });
+    set({ isFetchingMessages: true });
     try {
       const messages = await chatService.getMessages(conversationId);
       set({ messages });
     } catch (error) {
       console.error("Failed to fetch messages", error);
     } finally {
-      set({ isLoading: false });
+      set({ isFetchingMessages: false });
     }
   },
 
