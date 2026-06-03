@@ -63,6 +63,7 @@ The backend uses a strict **Repository-Service-Controller** architecture designe
 - **Zod Everywhere**: Used heavily in `server/validators` to sanitize incoming API traffic, and in `client/types` to ensure runtime safety for data received from the backend.
 - **Graceful Redis**: `CacheService` wraps the Redis client. If Redis goes down or isn't configured, the cache service silently catches errors and bypasses the cache, letting the app continue functioning via direct Postgres queries.
 - **Zustand Persistence**: The `activeConversationId` is persisted in `localStorage` via Zustand middleware. If a user reloads the page, their session history is instantly restored.
+- **Rate Limiting**: Applied via `express-rate-limit` to prevent DoS attacks and protect the OpenAI API key from being exhausted.
 
 ---
 
@@ -83,6 +84,5 @@ Every new message sent to the backend fetches the conversation history from Post
 ## ⚖️ Trade-offs & "If I had more time..."
 
 1. **Optimistic UI Reversions**: Currently, if the LLM fails, we display a friendly error message bubble. In a production system, we'd want a "Retry" button on that specific failed message payload.
-2. **Rate Limiting**: I would implement an IP-based or Session-based rate limiter (using the Redis instance we already have) to prevent API abuse and control OpenAI costs.
-3. **Token Capping**: The history sent to the LLM currently includes the *entire* conversation. If I had more time, I'd implement a sliding window (e.g., sending only the last 10-15 messages) or summarize older context to keep token counts strictly capped.
-4. **Streaming**: Currently using a standard request/response cycle. For a snappier UX, I would implement Server-Sent Events (SSE) or WebSockets to stream the LLM tokens directly to the React frontend in real-time.
+2. **Token Capping**: The history sent to the LLM currently includes the *entire* conversation. If I had more time, I'd implement a sliding window (e.g., sending only the last 10-15 messages) or summarize older context to keep token counts strictly capped.
+3. **Streaming**: Currently using a standard request/response cycle. For a snappier UX, I would implement Server-Sent Events (SSE) or WebSockets to stream the LLM tokens directly to the React frontend in real-time.

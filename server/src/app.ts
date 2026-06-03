@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import helmet from "helmet";
+import { apiRateLimiter } from "./middleware/rateLimiter.middleware";
 import conversationRoutes from "./routes/conversation.route";
 import messageRoutes from "./routes/message.route";
 import chatRoutes from "./routes/chat.route";
@@ -11,6 +12,9 @@ const app = express();
 app.use(cors());
 app.use(helmet());
 app.use(express.json());
+
+app.use("/api/", apiRateLimiter);
+app.use("/chat", apiRateLimiter);
 
 app.use("/api/v1/conversations", conversationRoutes);
 app.use("/api/v1/messages", messageRoutes);
