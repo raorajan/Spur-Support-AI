@@ -1,11 +1,15 @@
-import axios from 'axios';
+import { api } from "../lib/api";
+import { z } from "zod";
+import { MessageSchema, SendMessageResponseSchema, ApiMessage, ApiSendMessageResponse } from "../types/api.types";
 
 export const chatService = {
-  sendMessage: async (message: string, conversationId?: string) => {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve({ data: { response: "This is a mock AI response." } });
-      }, 1000);
-    });
+  getMessages: async (conversationId: string): Promise<ApiMessage[]> => {
+    const response = await api.get(`/messages/${conversationId}`);
+    return z.array(MessageSchema).parse(response.data);
+  },
+  
+  sendMessage: async (message: string, conversationId: string): Promise<ApiSendMessageResponse> => {
+    const response = await api.post(`/messages/${conversationId}`, { content: message });
+    return SendMessageResponseSchema.parse(response.data);
   }
 };

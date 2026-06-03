@@ -1,16 +1,20 @@
 import { MessageCircle, MoreHorizontal, Trash2 } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { cn } from "@/lib/utils";
-import { Conversation, useConversationStore } from "@/store/conversation.store";
+import { useConversationStore } from "@/store/conversation.store";
 import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
 
+import { useChatStore } from "@/store/chat.store";
+import { ApiConversation } from "@/types/api.types";
+
 interface ConversationItemProps {
-  conversation: Conversation;
+  conversation: ApiConversation;
 }
 
 export const ConversationItem = ({ conversation }: ConversationItemProps) => {
-  const { activeConversationId, setActiveConversationId, setSidebarOpen, deleteConversation } = useConversationStore();
+  const { activeConversationId, setActiveConversationId, setSidebarOpen, removeConversation } = useConversationStore();
+  const { fetchMessages, clearMessages } = useChatStore();
   const isActive = activeConversationId === conversation.id;
 
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -32,11 +36,13 @@ export const ConversationItem = ({ conversation }: ConversationItemProps) => {
     if (window.innerWidth < 768) {
       setSidebarOpen(false);
     }
+    clearMessages();
+    fetchMessages(conversation.id);
   };
 
-  const handleDelete = (e: React.MouseEvent) => {
+  const handleDelete = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    deleteConversation(conversation.id);
+    await removeConversation(conversation.id);
     setIsModalOpen(false);
   };
 

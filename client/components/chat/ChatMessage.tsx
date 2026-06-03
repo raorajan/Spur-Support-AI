@@ -1,14 +1,14 @@
-import { Message } from "@/store/chat.store";
+import { ApiMessage } from "@/types/api.types";
 import { Avatar } from "@/components/ui/Avatar";
 import { cn } from "@/lib/utils";
 import ReactMarkdown from "react-markdown";
 
 interface ChatMessageProps {
-  message: Message;
+  message: ApiMessage;
 }
 
 export const ChatMessage = ({ message }: ChatMessageProps) => {
-  const isUser = message.role === 'user';
+  const isUser = message.sender === 'user';
 
   return (
     <div className={cn("flex gap-4 w-full py-4", isUser ? "flex-row-reverse" : "flex-row")}>

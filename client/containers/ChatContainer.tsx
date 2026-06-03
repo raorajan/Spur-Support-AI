@@ -5,11 +5,10 @@ import { ConversationList } from "@/components/conversation/ConversationList";
 import { NewChatButton } from "@/components/conversation/NewChatButton";
 import { ChatWindow } from "@/components/chat/ChatWindow";
 import { useConversationStore } from "@/store/conversation.store";
-import { conversationService } from "@/services/conversation.service";
 import { cn } from "@/lib/utils";
 
 export const ChatContainer = () => {
-  const { setConversations, isSidebarOpen, setSidebarOpen } = useConversationStore();
+  const { fetchConversations, isSidebarOpen, setSidebarOpen } = useConversationStore();
 
   useEffect(() => {
     let prevWidth = window.innerWidth;
@@ -32,20 +31,8 @@ export const ChatContainer = () => {
   }, [setSidebarOpen]);
 
   useEffect(() => {
-    const fetchConversations = async () => {
-      try {
-        await conversationService.getConversations();
-        setConversations([
-          { id: '1', title: 'Refund Policy', updatedAt: new Date() },
-          { id: '2', title: 'Shipping Status', updatedAt: new Date() },
-        ]);
-      } catch (error) {
-        console.error("Failed to load conversations:", error);
-      }
-    };
-    
     fetchConversations();
-  }, [setConversations]);
+  }, [fetchConversations]);
 
   return (
     <div className="flex h-screen w-full bg-[#0F172A] overflow-hidden text-[#F8FAFC]">

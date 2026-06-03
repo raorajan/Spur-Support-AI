@@ -3,12 +3,11 @@ import { Send } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { useChatStore } from "@/store/chat.store";
 import { useConversationStore } from "@/store/conversation.store";
-import { chatService } from "@/services/chat.service";
 
 export const ChatInput = () => {
   const [input, setInput] = useState("");
-  const { addMessage, setLoading, isLoading } = useChatStore();
-  const { activeConversationId, setActiveConversationId, addConversation } = useConversationStore();
+  const { sendMessage, addOptimisticMessage, isLoading } = useChatStore();
+  const { activeConversationId, setActiveConversationId, createNewConversation } = useConversationStore();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -27,13 +26,14 @@ export const ChatInput = () => {
     let convId = activeConversationId;
     
     if (!convId) {
-      convId = Date.now().toString();
-      addConversation({
-        id: convId,
-        title: val.length > 30 ? `${val.slice(0, 30)}...` : val,
-        updatedAt: new Date()
-      });
-      setActiveConversationId(convId);
+      try {
+        const newConv = await createNewConversation(val.length > 30 ? `${val.slice(0, 30)}...` : val);
+        convId = newConv.id;
+        setActiveConversationId(convId);
+      } catch (err) {
+        console.error("Failed to create conversation", err);
+        return;
+      }
     }
 
     setInput("");
@@ -41,31 +41,17 @@ export const ChatInput = () => {
       textareaRef.current.style.height = 'auto';
     }
     
-    addMessage({
-      id: Date.now().toString(),
+    // Add optimistic user message to the UI
+    addOptimisticMessage({
+      id: `temp-${Date.now()}`,
       conversationId: convId,
       content: val,
-      role: 'user',
-      createdAt: new Date()
+      sender: 'user',
+      createdAt: new Date().toISOString()
     });
     
-    setLoading(true);
-    
-    try {
-      const res = await chatService.sendMessage(val) as any;
-      
-      addMessage({
-        id: (Date.now() + 1).toString(),
-        conversationId: convId,
-        content: res?.data?.response || "I didn't quite catch that.",
-        role: 'assistant',
-        createdAt: new Date()
-      });
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
+    // Call the actual API via store (this will update the UI with real messages)
+    await sendMessage(convId, val);
   };
 
   const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {

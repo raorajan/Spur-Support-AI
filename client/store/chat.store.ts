@@ -1,25 +1,55 @@
 import { create } from 'zustand';
-
-export interface Message {
-  id: string;
-  conversationId: string | null;
-  role: 'user' | 'assistant';
-  content: string;
-  createdAt: Date;
-}
+import { chatService } from '../services/chat.service';
+import { ApiMessage } from '../types/api.types';
 
 interface ChatState {
-  messages: Message[];
+  messages: ApiMessage[];
   isLoading: boolean;
-  addMessage: (message: Message) => void;
-  setLoading: (isLoading: boolean) => void;
+  
+  fetchMessages: (conversationId: string) => Promise<void>;
+  sendMessage: (conversationId: string, content: string) => Promise<void>;
+  
+  addOptimisticMessage: (message: ApiMessage) => void;
   clearMessages: () => void;
 }
 
-export const useChatStore = create<ChatState>((set) => ({
+export const useChatStore = create<ChatState>((set, get) => ({
   messages: [],
   isLoading: false,
-  addMessage: (message) => set((state) => ({ messages: [...state.messages, message] })),
-  setLoading: (isLoading) => set({ isLoading }),
+
+  fetchMessages: async (conversationId: string) => {
+    set({ isLoading: true });
+    try {
+      const messages = await chatService.getMessages(conversationId);
+      set({ messages });
+    } catch (error) {
+      console.error("Failed to fetch messages", error);
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+
+  sendMessage: async (conversationId: string, content: string) => {
+    set({ isLoading: true });
+    try {
+      const response = await chatService.sendMessage(content, conversationId);
+      
+      set((state) => {
+        // Remove optimistic message if it exists (we assume the last user message might be optimistic, 
+        // but it's safer to just filter out the optimistic one if we give it a specific ID format.
+        // For simplicity, we just append the true DB messages and remove the temp one).
+        const filtered = state.messages.filter(m => !m.id.startsWith("temp-"));
+        return { messages: [...filtered, response.userMessage, response.aiMessage] };
+      });
+      
+    } catch (error) {
+      console.error("Failed to send message", error);
+      // In a real app, we'd handle the error state here and remove the optimistic message
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+
+  addOptimisticMessage: (message) => set((state) => ({ messages: [...state.messages, message] })),
   clearMessages: () => set({ messages: [] }),
 }));
