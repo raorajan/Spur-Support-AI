@@ -10,7 +10,8 @@ export const ChatWindow = () => {
         <div className="absolute inset-0">
           <MessageList />
         </div>
-        <div className="absolute bottom-0 left-0 right-0 z-10 bg-gradient-to-t from-[#0F172A] via-[#0F172A]/90 to-transparent pt-12 pb-4">
+        <div className="absolute bottom-0 left-0 right-0 z-10 pt-12 pb-4
+                        bg-gradient-to-t from-[#0F172A] via-[#0F172A]/90 to-transparent">
           <ChatInput />
         </div>
       </div>

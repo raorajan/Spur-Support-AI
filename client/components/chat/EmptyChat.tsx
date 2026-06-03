@@ -9,10 +9,12 @@ export const EmptyChat = () => {
           "What is your refund policy?",
           "Do you ship internationally?",
           "What are your support hours?"
-        ].map((q, i) => (
+        ].map((q) => (
           <div 
-            key={i} 
-            className="p-4 rounded-xl border border-[#334155] bg-[#1E293B] text-[#F8FAFC] hover:bg-[#334155] transition-colors cursor-pointer"
+            key={q} 
+            className="p-4 rounded-xl border border-[#334155] bg-[#1E293B] 
+                       text-[#F8FAFC] hover:bg-[#334155] transition-colors 
+                       cursor-pointer"
           >
             • {q}
           </div>

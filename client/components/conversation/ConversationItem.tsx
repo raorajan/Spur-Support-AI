@@ -30,7 +30,7 @@ export const ConversationItem = ({ conversation }: ConversationItemProps) => {
   const handleSelect = () => {
     setActiveConversationId(conversation.id);
     if (window.innerWidth < 768) {
-      setSidebarOpen(false); // Auto-close on mobile
+      setSidebarOpen(false);
     }
   };
 
@@ -58,20 +58,29 @@ export const ConversationItem = ({ conversation }: ConversationItemProps) => {
 
         <div className="absolute right-2 flex items-center" ref={dropdownRef}>
           <button 
-            onClick={(e) => { e.stopPropagation(); setIsDropdownOpen(!isDropdownOpen); }}
+            onClick={(e) => { 
+              e.stopPropagation(); 
+              setIsDropdownOpen(!isDropdownOpen); 
+            }}
             className={cn(
-              "p-1.5 rounded-md transition-opacity",
-              isActive || isDropdownOpen ? "opacity-100 text-[#94A3B8] hover:text-[#F8FAFC]" : "opacity-0 group-hover:opacity-100 text-[#94A3B8] hover:text-[#F8FAFC]"
+              "p-1.5 rounded-md transition-opacity text-[#94A3B8] hover:text-[#F8FAFC]",
+              isActive || isDropdownOpen ? "opacity-100" : "opacity-0 group-hover:opacity-100"
             )}
           >
             <MoreHorizontal size={16} />
           </button>
           
           {isDropdownOpen && (
-            <div className="absolute top-full right-0 mt-1 w-32 bg-[#1E293B] border border-[#334155] rounded-md shadow-lg z-50 py-1">
+            <div className="absolute top-full right-0 mt-1 w-32 bg-[#1E293B] 
+                            border border-[#334155] rounded-md shadow-lg z-50 py-1">
               <button 
-                onClick={(e) => { e.stopPropagation(); setIsModalOpen(true); setIsDropdownOpen(false); }}
-                className="w-full flex items-center gap-2 px-3 py-2 text-sm text-[#EF4444] hover:bg-[#334155] transition-colors text-left"
+                onClick={(e) => { 
+                  e.stopPropagation(); 
+                  setIsModalOpen(true); 
+                  setIsDropdownOpen(false); 
+                }}
+                className="w-full flex items-center gap-2 px-3 py-2 text-sm 
+                           text-[#EF4444] hover:bg-[#334155] transition-colors text-left"
               >
                 <Trash2 size={14} />
                 Delete

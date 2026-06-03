@@ -1,4 +1,4 @@
-import { useState, useRef, KeyboardEvent, useEffect } from "react";
+import { useState, useRef, KeyboardEvent } from "react";
 import { Send } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { useChatStore } from "@/store/chat.store";
@@ -14,43 +14,37 @@ export const ChatInput = () => {
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setInput(e.target.value);
     
-    // Auto-resize the textarea
     if (textareaRef.current) {
       textareaRef.current.style.height = 'auto';
       textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
     }
   };
 
-  const resetTextareaHeight = () => {
+  const handleSend = async () => {
+    const val = input.trim();
+    if (!val || isLoading) return;
+    
+    let convId = activeConversationId;
+    
+    if (!convId) {
+      convId = Date.now().toString();
+      addConversation({
+        id: convId,
+        title: val.length > 30 ? `${val.slice(0, 30)}...` : val,
+        updatedAt: new Date()
+      });
+      setActiveConversationId(convId);
+    }
+
+    setInput("");
     if (textareaRef.current) {
       textareaRef.current.style.height = 'auto';
     }
-  };
-
-  const handleSend = async () => {
-    if (!input.trim() || isLoading) return;
-    
-    let currentConversationId = activeConversationId;
-    
-    // If it's a new chat, create a conversation first
-    if (!currentConversationId) {
-      currentConversationId = Date.now().toString();
-      addConversation({
-        id: currentConversationId,
-        title: input.trim().substring(0, 30) + (input.trim().length > 30 ? '...' : ''),
-        updatedAt: new Date()
-      });
-      setActiveConversationId(currentConversationId);
-    }
-
-    const userMessage = input.trim();
-    setInput("");
-    resetTextareaHeight();
     
     addMessage({
       id: Date.now().toString(),
-      conversationId: currentConversationId,
-      content: userMessage,
+      conversationId: convId,
+      content: val,
       role: 'user',
       createdAt: new Date()
     });
@@ -58,16 +52,17 @@ export const ChatInput = () => {
     setLoading(true);
     
     try {
-      const response = await chatService.sendMessage(userMessage);
+      const res = await chatService.sendMessage(val) as any;
+      
       addMessage({
         id: (Date.now() + 1).toString(),
-        conversationId: currentConversationId,
-        content: (response as any).data.response,
+        conversationId: convId,
+        content: res?.data?.response || "I didn't quite catch that.",
         role: 'assistant',
         createdAt: new Date()
       });
-    } catch (error) {
-      console.error(error);
+    } catch (err) {
+      console.error(err);
     } finally {
       setLoading(false);
     }
@@ -89,14 +84,21 @@ export const ChatInput = () => {
           onChange={handleInputChange}
           onKeyDown={handleKeyDown}
           placeholder="Type your message..."
-          className="w-full bg-[#1E293B] border border-[#334155] text-[#F8FAFC] rounded-xl px-4 py-3 pr-12 focus:outline-none focus:ring-2 focus:ring-[#6366F1] resize-none min-h-[52px] max-h-52 placeholder:text-[#94A3B8] [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-[#334155] [&::-webkit-scrollbar-thumb]:rounded-full"
+          className="w-full bg-[#1E293B] border border-[#334155] text-[#F8FAFC] 
+                     rounded-xl px-4 py-3 pr-12 focus:outline-none focus:ring-2 
+                     focus:ring-[#6366F1] resize-none min-h-[52px] max-h-52 
+                     placeholder:text-[#94A3B8] 
+                     [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent 
+                     [&::-webkit-scrollbar-thumb]:bg-[#334155] [&::-webkit-scrollbar-thumb]:rounded-full"
           rows={1}
         />
         <Button 
           size="icon"
           onClick={handleSend}
           disabled={!input.trim() || isLoading}
-          className="absolute right-2 mb-1.5 h-8 w-8 rounded-lg bg-[#6366F1] hover:bg-[#4F46E5] text-white disabled:bg-[#334155] disabled:text-[#94A3B8]"
+          className="absolute right-2 mb-1.5 h-8 w-8 rounded-lg bg-[#6366F1] 
+                     hover:bg-[#4F46E5] text-white disabled:bg-[#334155] 
+                     disabled:text-[#94A3B8]"
         >
           <Send size={16} />
         </Button>

@@ -21,7 +21,7 @@ interface ConversationState {
 export const useConversationStore = create<ConversationState>((set) => ({
   conversations: [],
   activeConversationId: null,
-  isSidebarOpen: false, // Default to closed for mobile-first, or we could handle this with a screen resize listener. We'll default to false, but wait, desktop usually has it open. Let's set it to false and let the user toggle.
+  isSidebarOpen: false,
   setConversations: (conversations) => set({ conversations }),
   addConversation: (conv) => set((state) => ({ conversations: [conv, ...state.conversations] })),
   deleteConversation: (id) => set((state) => ({

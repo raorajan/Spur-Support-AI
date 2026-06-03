@@ -22,7 +22,11 @@ export const MessageList = () => {
   }
 
   return (
-    <div className="flex-1 h-full overflow-y-auto p-6 scroll-smooth [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]" ref={scrollRef}>
+    <div 
+      ref={scrollRef}
+      className="flex-1 h-full overflow-y-auto p-6 scroll-smooth 
+                 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+    >
       <div className="max-w-4xl mx-auto flex flex-col pb-56">
         {currentMessages.map((message) => (
           <ChatMessage key={message.id} message={message} />
