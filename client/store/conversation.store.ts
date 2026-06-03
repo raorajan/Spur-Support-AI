@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import toast from 'react-hot-toast';
 import { conversationService } from '../services/conversation.service';
 import { ApiConversation } from '../types/api.types';
 
@@ -8,6 +9,7 @@ interface ConversationState {
   activeConversationId: string | null;
   isSidebarOpen: boolean;
   isLoading: boolean;
+  fetchError: string | null;
   
   fetchConversations: () => Promise<void>;
   createNewConversation: (title?: string) => Promise<ApiConversation>;
@@ -25,14 +27,16 @@ export const useConversationStore = create<ConversationState>()(
       activeConversationId: null,
       isSidebarOpen: false,
       isLoading: false,
+      fetchError: null,
 
       fetchConversations: async () => {
-        set({ isLoading: true });
+        set({ isLoading: true, fetchError: null });
         try {
           const conversations = await conversationService.getConversations();
           set({ conversations });
         } catch (error) {
           console.error("Failed to fetch conversations", error);
+          set({ fetchError: "Could not load conversations. Please check your connection." });
         } finally {
           set({ isLoading: false });
         }
@@ -56,6 +60,7 @@ export const useConversationStore = create<ConversationState>()(
           }));
         } catch (error) {
           console.error("Failed to delete conversation", error);
+          toast.error("Failed to delete chat: Network error.");
         }
       },
 
